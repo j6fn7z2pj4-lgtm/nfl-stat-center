@@ -1,0 +1,103 @@
+name: Update NFL Player Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 12 * 1,2,9-12 *"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get repository
+        uses: actions/checkout@v4
+
+      - name: Download and process NFL stats
+        run: |
+          python - <<'PY'
+          import csv, json, urllib.request, os
+          from collections import defaultdict
+
+          season = 2026
+          url = f"https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{season}.csv"
+
+          with urllib.request.urlopen(url) as response:
+              rows = csv.DictReader(
+                  __import__('io').TextIOWrapper(response, encoding='utf-8')
+              )
+
+              players = {}
+
+              def num(row, *keys):
+                  for key in keys:
+                      try:
+                          return float(row.get(key) or 0)
+                      except (ValueError, TypeError):
+                          continue
+                  return 0
+
+              for r in rows:
+                  if r.get("season_type") not in ("REG", ""):
+                      continue
+
+                  pid = r.get("player_id") or r.get("player_name")
+                  if not pid:
+                      continue
+
+                  if pid not in players:
+                      players[pid] = {
+                          "id": pid,
+                          "name": r.get("player_display_name") or r.get("player_name") or "Unknown",
+                          "pos": r.get("position") or "—",
+                          "team": r.get("recent_team") or r.get("team") or "—",
+                          "pass": 0, "rush": 0, "rec": 0,
+                          "td": 0, "fp": 0, "games": 0,
+                          "int": 0, "sacks": 0,
+                          "tackles": 0, "fg": 0, "punts": 0,
+                          "_weeks": set()
+                      }
+
+                  p = players[pid]
+                  p["team"] = r.get("recent_team") or r.get("team") or p["team"]
+                  p["pass"] += num(r, "passing_yards")
+                  p["rush"] += num(r, "rushing_yards")
+                  p["rec"] += num(r, "receiving_yards")
+                  p["td"] += (
+                      num(r, "passing_tds") +
+                      num(r, "rushing_tds") +
+                      num(r, "receiving_tds") +
+                      num(r, "special_teams_tds")
+                  )
+                  p["fp"] += num(r, "fantasy_points_ppr", "fantasy_points")
+                  p["int"] += num(r, "interceptions", "passing_interceptions")
+                  p["sacks"] += num(r, "def_sacks", "sacks")
+                  p["tackles"] += num(r, "solo_tackles") + num(r, "assisted_tackles")
+                  p["fg"] += num(r, "fg_made")
+                  p["punts"] += num(r, "punts")
+                  p["_weeks"].add(r.get("week"))
+
+          output = []
+          for p in players.values():
+              p["games"] = len(p.pop("_weeks"))
+              output.append(p)
+
+          if not output:
+              raise Exception("No player statistics were downloaded.")
+
+          os.makedirs("data", exist_ok=True)
+          with open("data/nfl-data.json", "w") as f:
+              json.dump({"season": season, "players": output}, f)
+
+          print(f"Saved {len(output)} NFL players.")
+          PY
+
+      - name: Save updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/nfl-data.json
+          git diff --cached --quiet || (git commit -m "Update NFL player statistics" && git push)
