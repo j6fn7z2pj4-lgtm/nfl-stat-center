@@ -136,12 +136,12 @@ label, .field, .empty {
 <div class="grid two-col" style="margin-top:14px"><div class="panel"><div class="section-head"><h2>Weekly workflow</h2><span class="tag">Automated refresh</span></div><div class="mini-list"><div class="mini-row"><span>1. Pull completed game stats</span><b>API</b></div><div class="mini-row"><span>2. Reconcile player IDs & teams</span><b>ETL</b></div><div class="mini-row"><span>3. Recalculate season totals</span><b>DB</b></div><div class="mini-row"><span>4. Refresh dashboard cache</span><b>Deploy</b></div></div></div><div class="panel"><div class="section-head"><h2>What this dashboard covers</h2></div><div class="mini-list"><div class="mini-row"><span>Passing · rushing · receiving</span><span class="tag">Core</span></div><div class="mini-row"><span>Defensive stats & kicking</span><span class="tag">Schema-ready</span></div><div class="mini-row"><span>Player comparisons & trends</span><span class="tag">Interactive</span></div><div class="mini-row"><span>Odds math & projections</span><span class="tag">Calculator</span></div></div></div></div>
 </section>
 <section id="players" class="view hidden"><div class="panel"><div class="section-head"><h2>Active player database</h2><span class="muted" id="shownCount">Roster feed not connected</span></div><div class="controls" style="margin-bottom:14px"><input id="search" placeholder="Search player, team or position…" aria-label="Search players"><select id="position"><option value="All">All positions / units</option><option>QB</option><option>RB</option><option>WR</option><option>TE</option><option>OL</option><option>DL</option><option>EDGE</option><option>LB</option><option>CB</option><option>S</option><option>K</option><option>P</option><option>LS</option><option>RET</option></select><select id="sort"><option value="fantasy">Sort: Fantasy points</option><option value="yards">Sort: Total yards</option><option value="td">Sort: Touchdowns</option><option value="name">Sort: Name</option></select></div><div class="table-wrap"><table><thead><tr><th>Player</th><th>Team</th><th>Position / unit</th><th>Games</th><th>Pass Yds</th><th>Rush Yds</th><th>Rec Yds</th><th>TD</th><th>INT</th><th>Sacks</th><th>Tackles</th><th>FG</th><th>Punts</th></tr></thead><tbody id="playerRows"><tr><td colspan="13" class="empty">Connect a current-season roster and player-stat feed to load every active offensive, defensive and special-teams player.</td></tr></tbody></table></div><p class="foot">The completed player profile will include passing, rushing, receiving, fumbles, defensive tackles and assists, sacks, interceptions, passes defended, field goals, extra points, punting and return production.</p></div></section>
-<section id="teams" class="view hidden"><div class="panel"><div class="section-head"><h2>All 32 team statistics & rankings</h2><span class="muted" id="teamCount">32 teams · stats feed pending</span></div><div class="controls" style="margin-bottom:14px"><input id="teamSearch" placeholder="Search team or division…" aria-label="Search teams"><select id="teamSort"><option value="win">Sort: Win percentage</option><option value="pf">Sort: Points scored</option><option value="pa">Sort: Points allowed</option><option value="pass">Sort: Passing yards</option><option value="rush">Sort: Rushing yards</option><option value="defense">Sort: Sacks</option></select></div><div class="table-wrap"><table><thead><tr><th>Team</th><th>Division</th><th>Record</th><th>Win %</th><th>Off. rank</th><th>Def. rank</th><th>PF</th><th>PA</th><th>Pass Yds</th><th>Rush Yds</th><th>Sacks</th><th>Takeaways</th></tr></thead><tbody id="teamRows"></tbody></table></div><p class="foot">Records, points for/against and league ranks use completed 2026 regular-season scores. Passing/rushing yards, sacks and takeaways are summed from player game logs through the latest loaded week.</p></div></section>
+<section id="teams" class="view hidden"><div class="panel"><div class="section-head"><h2>All 32 team statistics & rankings</h2><span class="muted" id="teamCount">32 teams · stats feed pending</span></div><div class="controls" style="margin-bottom:14px"><input id="teamSearch" placeholder="Search team or division…" aria-label="Search teams"><select id="teamSort"><option value="win">Sort: Win percentage</option><option value="pf">Sort: Points scored</option><option value="pa">Sort: Points allowed</option><option value="pass">Sort: Passing yards</option><option value="rush">Sort: Rushing yards</option><option value="defense">Sort: Sacks</option></select></div><div class="table-wrap"><table><thead><tr><th>Team</th><th>Division</th><th>Record</th><th>Win %</th><th>Off. rank</th><th>Def. rank</th><th>PF</th><th>PA</th><th>Pass Yds</th><th>Rush Yds</th><th>Sacks</th><th>Takeaways</th></tr></thead><tbody id="teamRows"></tbody></table></div><p class="foot">Records, points for/against and league ranks use completed 2026 regular-season scores. Off. rank = total offensive yards; Def. rank = opponent total yards allowed. Passing/rushing yards, sacks and takeaways are summed from player game logs through the latest loaded week.</p></div></section>
 <section id="weekly" class="view hidden"><div class="panel"><div class="section-head"><h2>Individual weekly statistics</h2><span class="muted" id="weeklyCount">Loading weekly game logs…</span></div><div class="controls"><select id="weekSelect"><option>Week 1</option><option>Week 2</option><option>Week 3</option><option>Week 4</option><option>Week 5</option><option>Week 6</option><option>Week 7</option><option>Week 8</option><option>Week 9</option><option>Week 10</option><option>Week 11</option><option>Week 12</option><option>Week 13</option><option>Week 14</option><option>Week 15</option><option>Week 16</option><option>Week 17</option><option>Week 18</option></select><select id="weeklyUnit"><option>All units</option><option>Offense</option><option>Defense</option><option>Special teams</option></select><input id="weeklySearch" placeholder="Filter by player or team…" aria-label="Filter weekly stats"></div><div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>Player</th><th>Team</th><th>Opponent</th><th>Pass Yds</th><th>Pass TD</th><th>Rush Yds</th><th>Rush TD</th><th>Rec</th><th>Rec Yds</th><th>Rec TD</th><th>Tackles</th><th>Sacks</th><th>INT</th><th>Fantasy</th></tr></thead> <tbody id="weeklyRows"><tr><td colspan="14" class="empty">Weekly player box scores will appear here after the game-stat feed is connected.</td></tr></tbody></table></div><p class="foot">Weekly filters will cover every player who records a stat, including quarterbacks, skill positions, offensive line where tracked, defensive front seven, defensive backs, kickers, punters, long snappers and return specialists.</p></div></section>
 <section id="opponents" class="view hidden"><div class="panel"><div class="section-head"><h2>Player performance vs. each opponent</h2><span class="muted" id="opponentCount">Choose a player to view game logs</span></div><div class="split"><label class="field">Player<select id="opponentPlayer"><option value="">Loading players…</option></select></label><label class="field">Opponent<select id="opponentFilter"><option value="ALL">All 32 opponents</option></select></label></div><div class="table-wrap" style="margin-top:16px"><table><thead><tr><th>Opponent</th><th>Games</th><th>Pass Yds</th><th>Rush Yds</th><th>Rec Yds</th><th>TD</th><th>Turnovers</th><th>Tackles</th><th>Sacks</th><th>Fantasy</th></tr></thead><tbody id="opponentRows"><tr><td colspan="10" class="empty">Select a player to see performance against each opponent.</td></tr></tbody></table></div><p class="foot">Totals and per-game appearances are calculated from the connected 2026 regular-season player game logs. Opponents with no game logged yet will not appear.</p></div></section><section id="compare" class="view hidden"><div class="panel"><div class="section-head"><h2>Player comparison</h2><span class="muted">Side-by-side season profile</span></div><div class="split"><label class="field">Player A<select id="compareA"></select></label><label class="field">Player B<select id="compareB"></select></label></div><div id="comparison" style="margin-top:18px"></div></div></section>
 <section id="projection" class="view hidden"><div class="grid two-col"><div class="panel"><div class="section-head"><h2>Player projection</h2><span class="tag">What-if model</span></div><div class="grid" style="gap:12px"><label class="field">Player<select id="projectPlayer"></select></label><label class="field">Opponent defensive adjustment (%)<input id="adjustment" type="number" value="0" min="-50" max="50"></label><label class="field">Expected game pace<select id="pace"><option value="1">Normal</option><option value="1.08">Fast (+8%)</option><option value=".92">Slow (-8%)</option></select></label><button class="btn" id="runProjection">Calculate projection</button></div></div><div class="panel"><div class="section-head"><h2>Projected output</h2><span class="muted">Illustrative only</span></div><div id="projectionResult" class="empty">Choose a player and calculate to see a baseline projection.</div></div></div></section>
 <section id="betting" class="view hidden"><div class="grid two-col"><div class="panel"><div class="section-head"><h2>Odds & parlay calculator</h2><span class="tag">Math only</span></div><div class="grid" style="gap:12px"><label class="field">American odds<input id="odds" type="number" value="-110"></label><label class="field">Stake ($)<input id="stake" type="number" value="25" min="0" step=".01"></label><label class="field">Number of independent legs<input id="legs" type="number" value="3" min="1" max="20"></label><button class="btn" id="calcOdds">Calculate payout</button></div><div id="oddsResult" class="result"><span class="muted">Potential return</span><strong>$0.00</strong></div></div><div class="panel"><div class="section-head"><h2>Implied probability</h2></div><p class="muted">Convert American odds into break-even probability. For parlays, this simple calculator assumes each leg has the same odds and treats outcomes as independent.</p><div id="probability" class="result"><span class="muted">Break-even per leg</span><strong>52.38%</strong></div><p class="foot">This does not estimate whether a bet has value. Real legs are often correlated, books apply vig, and projections are uncertain. Never treat the output as a guaranteed edge.</p></div></div></section>
-<div class="foot">NFL Stat Center · 2026 season · Player game logs through Week 8; team scores/records from nflverse schedule data. Player stats and game logs: nflverse weekly player stats. Schedule/results: nflverse games.csv. This dashboard does not connect to a live sportsbook.</div>
+<div class="foot">NFL Stat Center · 2026 season · Player game logs through the latest loaded week; team scores/records from nflverse schedule data. Player stats and game logs: nflverse weekly player stats. Schedule/results: nflverse games.csv. This dashboard does not connect to a live sportsbook.</div>
 </main></div>
 <script>
 let players=[];
@@ -168,7 +168,7 @@ if(['DL','DE','DT','NT','LB','ILB','MLB','OLB','EDGE','CB','DB','S','FS','SS','S
 if(['K','P','LS','RET'].includes(p))return 'Special teams';
 return 'Other';
 };
-let rows=weekly.filter(r=>Number(r.week)===week&&(r.season_type==='REG'||!r.season_type)&&(unit==='All units'||group(r)===unit)&&(String(r.player_display_name||r.player_name||'')+' '+String(r.team||'')+' '+String(r.opponent_team||'')).toLowerCase().includes(q));
+let rows=weekly.filter(r=>Number(r.week)===week&&(r.season_type==='REG'||!r.season_type)&&(unit==='All units'||group(r)===unit)&&(String(r.player_display_name||r.player_name||'')+' '+String(r.team||r.recent_team||'')+' '+String(r.opponent_team||'')).toLowerCase().includes(q));
 rows.sort((a,b)=>num(b,'fantasy_points_ppr')-num(a,'fantasy_points_ppr'));
 $('weeklyCount').textContent=rows.length+' player records · Week '+week+' · 2026';
 $('weeklyRows').innerHTML=rows.length?rows.map(r=>{
@@ -179,29 +179,41 @@ return '<tr><td>'+(r.player_display_name||r.player_name||'Unknown')+'</td><td>'+
 }
 function buildTeamStats(){
 const out={};
-teams.forEach(t=>out[t.abbr]={team:t,w:0,l:0,t:0,games:0,pf:0,pa:0,pass:0,rush:0,sacks:0,takeaways:0});
+const offenseByGame={};
+teams.forEach(t=>out[t.abbr]={team:t,w:0,l:0,t:0,games:0,pf:0,pa:0,pass:0,rush:0,sacks:0,takeaways:0,defYardsAllowed:0});
 weekly.forEach(r=>{
-const code=normalizeTeam(r.team);
+const code=normalizeTeam(r.team||r.recent_team);
+const opponent=normalizeTeam(r.opponent_team);
 const s=out[code];if(!s)return;
-s.pass+=num(r,'passing_yards');
-s.rush+=num(r,'rushing_yards');
+const pass=num(r,'passing_yards'),rush=num(r,'rushing_yards');
+s.pass+=pass;
+s.rush+=rush;
 s.sacks+=num(r,'def_sacks');
 s.takeaways+=num(r,'def_interceptions')+num(r,'fumble_recovery_opp');
+if(opponent&&out[opponent]){
+const gameKey=r.game_id||[r.season||2026,r.week,code,opponent].join('-');
+const game=offenseByGame[gameKey]||(offenseByGame[gameKey]={team:code,opponent,yards:0});
+game.yards+=pass+rush;
+}
+});
+Object.values(offenseByGame).forEach(game=>{
+const defense=out[game.opponent];
+if(defense)defense.defYardsAllowed+=game.yards;
 });
 schedule.forEach(g=>{
 if(g.home_score===null||g.away_score===null||g.home_score===''||g.away_score==='')return;
 const home=out[normalizeTeam(g.home_team)],away=out[normalizeTeam(g.away_team)];
 if(!home||!away)return;
 home.games++;away.games++;
-home.pf+=g.home_score;home.pa+=g.away_score;
-away.pf+=g.away_score;away.pa+=g.home_score;
-if(g.home_score>g.away_score){home.w++;away.l++;}
-else if(g.home_score<g.away_score){away.w++;home.l++;}
+home.pf+=Number(g.home_score);home.pa+=Number(g.away_score);
+away.pf+=Number(g.away_score);away.pa+=Number(g.home_score);
+if(Number(g.home_score)>Number(g.away_score)){home.w++;away.l++;}
+else if(Number(g.home_score)<Number(g.away_score)){away.w++;home.l++;}
 else{home.t++;away.t++;}
 });
 Object.values(out).forEach(s=>s.winPct=s.games?(s.w+s.t/2)/s.games:0);
-const off=[...Object.values(out)].sort((a,b)=>b.pf-a.pf);
-const def=[...Object.values(out)].sort((a,b)=>a.pa-b.pa);
+const off=[...Object.values(out)].sort((a,b)=>(b.pass+b.rush)-(a.pass+a.rush));
+const def=[...Object.values(out)].sort((a,b)=>a.defYardsAllowed-b.defYardsAllowed);
 off.forEach((s,i)=>s.offRank=i+1);def.forEach((s,i)=>s.defRank=i+1);
 return out;
 }
