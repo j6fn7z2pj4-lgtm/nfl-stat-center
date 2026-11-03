@@ -66,7 +66,10 @@ jobs:
                       }
 
                   p = players[pid]
-                  weekly.append(dict(r)) 
+                  weekly_row = dict(r)
+                  # nflverse weekly rows use recent_team; expose a stable team alias for the dashboard.
+                  weekly_row["team"] = r.get("recent_team") or r.get("team") or ""
+                  weekly.append(weekly_row)
                   p["team"] = r.get("recent_team") or r.get("team") or p["team"]
                   p["pass"] += num(r, "passing_yards")
                   p["rush"] += num(r, "rushing_yards")
