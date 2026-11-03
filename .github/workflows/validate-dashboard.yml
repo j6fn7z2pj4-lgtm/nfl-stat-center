@@ -52,7 +52,9 @@ jobs:
               raise SystemExit("Every player record must have an ID or name")
           if any(not isinstance(r, dict) or not (r.get("player_id") or r.get("player_name") or r.get("player_display_name")) for r in weekly):
               raise SystemExit("Every weekly record must identify a player")
-          print(f"Valid player data: {len(players)} players, {len(weekly)} weekly records")
+          if any(not (r.get("team") or r.get("recent_team")) for r in weekly):
+              raise SystemExit("Every weekly record must include team or recent_team for dashboard filters and team totals")
+          print(f"Valid player data: {len(players)} players, {len(weekly)} weekly records with team identifiers")
 
           with Path("data/nfl-schedule-2026.json").open(encoding="utf-8") as f:
               schedule_data = json.load(f)
