@@ -115,9 +115,9 @@ jobs:
                       "week": int(game.get("week") or 0),
                       "date": game.get("game_date") or game.get("gameday") or game.get("date") or "",
                       "away_team": game.get("away_team") or "",
-                      "away_score": game.get("away_score") or "",
+                      "away_score": int(float(game["away_score"])) if game.get("away_score") not in (None, "") else "",
                       "home_team": game.get("home_team") or "",
-                      "home_score": game.get("home_score") or ""
+                      "home_score": int(float(game["home_score"])) if game.get("home_score") not in (None, "") else ""
                   })
 
           if not games:
