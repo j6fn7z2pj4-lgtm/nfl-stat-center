@@ -1,4 +1,4 @@
-name: Update NFL Player Data
+name: Update NFL Player and Schedule Data
 
 on:
   workflow_dispatch:
@@ -77,9 +77,9 @@ jobs:
                   p["fp"] += num(r, "fantasy_points_ppr", "fantasy_points")
                   p["int"] += num(r, "interceptions", "passing_interceptions")
                   p["sacks"] += num(r, "def_sacks", "sacks")
-                  p["tackles"] += num(r, "solo_tackles") + num(r, "assisted_tackles")
+                  p["tackles"] += num(r, "def_tackles_solo", "solo_tackles") + num(r, "def_tackles_assists", "def_tackle_assists", "assisted_tackles")
                   p["fg"] += num(r, "fg_made")
-                  p["punts"] += num(r, "punts")
+                  p["punts"] += num(r, "punt_attempts", "punts")
                   p["_weeks"].add(r.get("week"))
 
           output = []
@@ -94,12 +94,47 @@ jobs:
           with open("data/nfl-data.json", "w") as f:
               json.dump({"season": season, "players": output, "weekly": weekly}, f)
 
-          print(f"Saved {len(output)} NFL players.")
+          # Keep the game schedule and final scores current as well.
+          games_url = "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv"
+          with urllib.request.urlopen(games_url) as response:
+              games_reader = csv.DictReader(
+                  __import__('io').TextIOWrapper(response, encoding='utf-8')
+              )
+              games = []
+              for game in games_reader:
+                  if int(game.get("season") or 0) != season:
+                      continue
+                  game_type = game.get("game_type") or game.get("season_type") or "REG"
+                  if game_type != "REG":
+                      continue
+                  games.append({
+                      "game_id": game.get("game_id"),
+                      "week": int(game.get("week") or 0),
+                      "date": game.get("game_date") or game.get("gameday") or game.get("date") or "",
+                      "away_team": game.get("away_team") or "",
+                      "away_score": game.get("away_score") or "",
+                      "home_team": game.get("home_team") or "",
+                      "home_score": game.get("home_score") or ""
+                  })
+
+          if not games:
+              raise Exception("No 2026 NFL schedule rows were downloaded.")
+
+          from datetime import datetime, timezone
+          with open("data/nfl-schedule-2026.json", "w") as f:
+              json.dump({
+                  "season": season,
+                  "source": "nflverse games.csv",
+                  "updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                  "games": games
+              }, f)
+
+          print(f"Saved {len(output)} NFL players and {len(games)} schedule rows.")
           PY
 
       - name: Save updated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/nfl-data.json
+          git add data/nfl-data.json data/nfl-schedule-2026.json
           git diff --cached --quiet || (git commit -m "Update NFL player statistics" && git push)
