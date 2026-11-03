@@ -26,7 +26,6 @@ jobs:
         run: |
           python - <<'PY'
           import csv, json, urllib.request, os
-          from collections import defaultdict
 
           season = 2026
           url = f"https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{season}.csv"
@@ -38,6 +37,20 @@ jobs:
 
               players = {}
               weekly = []
+                  # Keep only fields used by the dashboard; the source CSV has many unused columns.
+                  weekly_fields = (
+                      "player_id", "player_name", "player_display_name", "position",
+                      "position_group", "recent_team", "opponent_team", "season",
+                      "week", "season_type", "game_id", "passing_yards",
+                      "passing_tds", "passing_interceptions", "rushing_yards",
+                      "rushing_tds", "receptions", "receiving_yards",
+                      "receiving_tds", "def_tackles_solo", "solo_tackles",
+                      "def_tackles_assists", "def_tackle_assists",
+                      "assisted_tackles", "def_sacks", "def_interceptions",
+                      "fantasy_points_ppr", "def_tds", "special_teams_tds",
+                      "fumbles_lost_total", "fumble_recovery_opp", "fg_made",
+                      "pt_att", "punt_attempts", "punts", "interceptions"
+                  )
 
               def num(row, *keys):
                   for key in keys:
@@ -72,20 +85,6 @@ jobs:
                       }
 
                   p = players[pid]
-                  # Keep only fields used by the dashboard; the source CSV has many unused columns.
-                  weekly_fields = (
-                      "player_id", "player_name", "player_display_name", "position",
-                      "position_group", "recent_team", "opponent_team", "season",
-                      "week", "season_type", "game_id", "passing_yards",
-                      "passing_tds", "passing_interceptions", "rushing_yards",
-                      "rushing_tds", "receptions", "receiving_yards",
-                      "receiving_tds", "def_tackles_solo", "solo_tackles",
-                      "def_tackles_assists", "def_tackle_assists",
-                      "assisted_tackles", "def_sacks", "def_interceptions",
-                      "fantasy_points_ppr", "def_tds", "special_teams_tds",
-                      "fumbles_lost_total", "fumble_recovery_opp", "fg_made",
-                      "pt_att", "punt_attempts", "punts", "interceptions"
-                  )
                   weekly_row = {key: r.get(key) for key in weekly_fields if key in r}
                   # nflverse weekly rows use recent_team; expose a stable team alias for the dashboard.
                   weekly_row["team"] = r.get("recent_team") or r.get("team") or ""
