@@ -22,7 +22,108 @@
 select,input{font:inherit;color:inherit;background:light-dark(#fff,#101c2b);border:1px solid light-dark(#d8e1e8,#3a4a5d);border-radius:9px;padding:10px 11px;min-width:0}button{font:inherit}.controls{display:flex;gap:9px;flex-wrap:wrap}.controls input{flex:1;min-width:170px}.controls select{min-width:120px}.btn{background:var(--site-primary);color:white;border:0;border-radius:9px;padding:10px 13px;font-size:12px;font-weight:700;cursor:pointer}.btn.secondary{background:light-dark(#e9f0f5,#26394e);color:light-dark(#1d3c57,#e6f1f8)}.mini-list{display:grid;gap:11px}.mini-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px}.bar{height:6px;background:light-dark(#e9eef2,#2a3b4d);border-radius:9px;overflow:hidden;margin-top:7px}.bar span{height:100%;display:block;background:#4b8fb9;border-radius:9px}.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:grid;gap:6px;font-size:11px;color:light-dark(#637386,#a8b7c7);font-weight:700}.field input,.field select{width:100%}.result{padding:14px;border-radius:12px;background:light-dark(#edf4f8,#20364b);margin-top:12px}.result strong{font-size:23px;display:block;margin:4px 0}.hidden{display:none!important}.player-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.player-card{display:flex;align-items:center;gap:12px}.player-card .avatar{width:42px;height:42px;font-size:12px}.player-card h3{font-size:13px;margin:0 0 3px}.player-card p{margin:0;font-size:11px;color:light-dark(#718093,#a1b2c3)}.two-col{grid-template-columns:1fr 1fr}.foot{margin-top:22px;color:light-dark(#7b8998,#8799ab);font-size:10px;line-height:1.5}.empty{padding:25px;text-align:center;color:light-dark(#718093,#a1b2c3);font-size:13px}
 @media(max-width:850px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.main-grid{grid-template-columns:1fr}.player-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:540px){.topbar{padding:14px}.brand h1{font-size:17px}.season{font-size:10px;padding:7px}.shell{padding:16px 12px 35px}.metric{padding:13px}.metric .value{font-size:25px}.panel{padding:14px}.player-grid,.two-col{grid-template-columns:1fr}.notice{font-size:11px}.notice strong{white-space:normal}}
-</style></head>
+/* BLACK AND WHITE HIGH CONTRAST THEME */
+:root {
+  color-scheme: dark;
+  --site-primary: #000000;
+  --site-secondary: #222222;
+  --site-background: #000000;
+  --site-on-primary: #ffffff;
+  --site-on-secondary: #ffffff;
+  --site-on-background: #ffffff;
+}
+
+body, #app, .shell {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+.topbar, .panel, .metric, .player-card, .result {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+}
+
+.notice {
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+}
+
+.tabs .tab {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+}
+
+.tabs .tab.active, .btn {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.btn.secondary {
+  background: #222222 !important;
+  color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+}
+
+table {
+  color: #ffffff !important;
+  border-collapse: collapse;
+}
+
+th, td {
+  color: #ffffff !important;
+  border-bottom: 1px solid #ffffff !important;
+}
+
+thead th {
+  border-bottom: 2px solid #ffffff !important;
+}
+
+tbody tr {
+  background: #000000 !important;
+}
+
+tbody tr:nth-child(even) {
+  background: #151515 !important;
+}
+
+tbody tr:hover {
+  background: #292929 !important;
+}
+
+select, input {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+}
+
+select option {
+  background: #000000;
+  color: #ffffff;
+}
+
+.player, .player-card h3, .player-card p,
+.section-head h2, .metric .value, .metric .label,
+.metric .sub, .muted, .foot, .pos, .mini-row,
+label, .field, .empty {
+  color: #ffffff !important;
+}
+
+.avatar, .tag {
+  background: #222222 !important;
+  color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+}
+
+.bar {
+  background: #333333 !important;
+}
+
+.bar span {
+  background: #ffffff !important;
+}</style></head>
 <body><div id="app">
 <header class="topbar"><div class="brand"><div class="mark">NFL</div><div><h1>STAT CENTER</h1><p>Player intelligence · game analytics</p></div></div><div class="season">2026 SEASON <span style="opacity:.65">/</span> WEEK 9</div></header>
 <main class="shell">
