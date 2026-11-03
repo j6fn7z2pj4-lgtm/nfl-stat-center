@@ -31,6 +31,7 @@ jobs:
               )
 
               players = {}
+              weekly = []
 
               def num(row, *keys):
                   for key in keys:
@@ -62,6 +63,7 @@ jobs:
                       }
 
                   p = players[pid]
+                  weekly.append(dict(r)) 
                   p["team"] = r.get("recent_team") or r.get("team") or p["team"]
                   p["pass"] += num(r, "passing_yards")
                   p["rush"] += num(r, "rushing_yards")
@@ -90,7 +92,7 @@ jobs:
 
           os.makedirs("data", exist_ok=True)
           with open("data/nfl-data.json", "w") as f:
-              json.dump({"season": season, "players": output}, f)
+              json.dump({"season": season, "players": output, "weekly": weekly}, f)
 
           print(f"Saved {len(output)} NFL players.")
           PY
