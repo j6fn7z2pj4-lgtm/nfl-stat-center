@@ -1,0 +1,57 @@
+name: Validate NFL Dashboard
+
+on:
+  push:
+    branches:
+      - dashboard-rebuild
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check dashboard JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script>(.*?)</script>", html, re.S)
+          if not scripts:
+              raise SystemExit("No inline dashboard script found")
+          Path("/tmp/dashboard.js").write_text("\n".join(scripts), encoding="utf-8")
+          PY
+          node --check /tmp/dashboard.js
+
+      - name: Validate JSON data files
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for name in ("data/nfl-data.json", "data/nfl-schedule-2026.json"):
+              with Path(name).open(encoding="utf-8") as f:
+                  json.load(f)
+              print(f"Valid JSON: {name}")
+          PY
+
+      - name: Check NFL data refresh Python syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re, textwrap
+          workflow = Path(".github/workflows/update-nfl-data.yml").read_text(encoding="utf-8")
+          match = re.search(r"python - <<'PY'\n(.*?)\n\s+PY", workflow, re.S)
+          if not match:
+              raise SystemExit("Could not locate embedded Python refresh script")
+          compile(textwrap.dedent(match.group(1)), "update-nfl-data.py", "exec")
+          print("NFL refresh Python syntax is valid")
+          PY
