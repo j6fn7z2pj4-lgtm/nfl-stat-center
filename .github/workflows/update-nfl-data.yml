@@ -16,7 +16,7 @@ jobs:
       - name: Get repository
         uses: actions/checkout@v4
 
-      - name: Download and process NFL stats
+      - name: Download and process NFL stats and schedule
         run: |
           python - <<'PY'
           import csv, json, urllib.request, os
@@ -137,4 +137,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/nfl-data.json data/nfl-schedule-2026.json
-          git diff --cached --quiet || (git commit -m "Update NFL player statistics" && git push)
+          git diff --cached --quiet || (git commit -m "Update NFL player statistics and schedule" && git push)
