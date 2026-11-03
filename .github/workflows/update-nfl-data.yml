@@ -1,6 +1,12 @@
-name: Update NFL Player Data
+name: Update NFL Player and Schedule Data
 
 on:
+  push:
+    branches:
+      - dashboard-rebuild
+    paths-ignore:
+      - data/nfl-data.json
+      - data/nfl-schedule-2026.json
   workflow_dispatch:
   schedule:
     - cron: "0 12 * 1,2,9-12 *"
@@ -16,11 +22,10 @@ jobs:
       - name: Get repository
         uses: actions/checkout@v4
 
-      - name: Download and process NFL stats
+      - name: Download and process NFL stats and schedule
         run: |
           python - <<'PY'
           import csv, json, urllib.request, os
-          from collections import defaultdict
 
           season = 2026
           url = f"https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{season}.csv"
@@ -32,11 +37,28 @@ jobs:
 
               players = {}
               weekly = []
+              # Keep only fields used by the dashboard; the source CSV has many unused columns.
+              weekly_fields = (
+                  "player_id", "player_name", "player_display_name", "position",
+                  "position_group", "recent_team", "opponent_team", "season",
+                  "week", "season_type", "game_id", "passing_yards",
+                  "passing_tds", "passing_interceptions", "rushing_yards",
+                  "rushing_tds", "receptions", "receiving_yards",
+                  "receiving_tds", "def_tackles_solo", "solo_tackles",
+                  "def_tackles_assists", "def_tackle_assists",
+                  "assisted_tackles", "def_sacks", "def_interceptions",
+                  "fantasy_points_ppr", "def_tds", "special_teams_tds",
+                  "fumbles_lost_total", "fumble_recovery_opp", "fg_made",
+                  "pt_att", "punt_attempts", "punts", "interceptions"
+              )
 
               def num(row, *keys):
                   for key in keys:
+                      value = row.get(key)
+                      if value is None or value == "":
+                          continue
                       try:
-                          return float(row.get(key) or 0)
+                          return float(value)
                       except (ValueError, TypeError):
                           continue
                   return 0
@@ -63,7 +85,10 @@ jobs:
                       }
 
                   p = players[pid]
-                  weekly.append(dict(r)) 
+                  weekly_row = {key: r.get(key) for key in weekly_fields if key in r}
+                  # nflverse weekly rows use recent_team; expose a stable team alias for the dashboard.
+                  weekly_row["team"] = r.get("recent_team") or r.get("team") or ""
+                  weekly.append(weekly_row)
                   p["team"] = r.get("recent_team") or r.get("team") or p["team"]
                   p["pass"] += num(r, "passing_yards")
                   p["rush"] += num(r, "rushing_yards")
@@ -77,9 +102,9 @@ jobs:
                   p["fp"] += num(r, "fantasy_points_ppr", "fantasy_points")
                   p["int"] += num(r, "interceptions", "passing_interceptions")
                   p["sacks"] += num(r, "def_sacks", "sacks")
-                  p["tackles"] += num(r, "solo_tackles") + num(r, "assisted_tackles")
+                  p["tackles"] += num(r, "def_tackles_solo", "solo_tackles") + num(r, "def_tackles_assists", "def_tackle_assists", "assisted_tackles")
                   p["fg"] += num(r, "fg_made")
-                  p["punts"] += num(r, "punts")
+                  p["punts"] += num(r, "punt_attempts", "punts")
                   p["_weeks"].add(r.get("week"))
 
           output = []
@@ -94,12 +119,47 @@ jobs:
           with open("data/nfl-data.json", "w") as f:
               json.dump({"season": season, "players": output, "weekly": weekly}, f)
 
-          print(f"Saved {len(output)} NFL players.")
+          # Keep the game schedule and final scores current as well.
+          games_url = "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv"
+          with urllib.request.urlopen(games_url) as response:
+              games_reader = csv.DictReader(
+                  __import__('io').TextIOWrapper(response, encoding='utf-8')
+              )
+              games = []
+              for game in games_reader:
+                  if int(game.get("season") or 0) != season:
+                      continue
+                  game_type = game.get("game_type") or game.get("season_type") or "REG"
+                  if game_type != "REG":
+                      continue
+                  games.append({
+                      "game_id": game.get("game_id"),
+                      "week": int(game.get("week") or 0),
+                      "date": game.get("game_date") or game.get("gameday") or game.get("date") or "",
+                      "away_team": game.get("away_team") or "",
+                      "away_score": int(float(game["away_score"])) if game.get("away_score") not in (None, "") else "",
+                      "home_team": game.get("home_team") or "",
+                      "home_score": int(float(game["home_score"])) if game.get("home_score") not in (None, "") else ""
+                  })
+
+          if not games:
+              raise Exception("No 2026 NFL schedule rows were downloaded.")
+
+          from datetime import datetime, timezone
+          with open("data/nfl-schedule-2026.json", "w") as f:
+              json.dump({
+                  "season": season,
+                  "source": "nflverse games.csv",
+                  "updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                  "games": games
+              }, f)
+
+          print(f"Saved {len(output)} NFL players and {len(games)} schedule rows.")
           PY
 
       - name: Save updated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/nfl-data.json
-          git diff --cached --quiet || (git commit -m "Update NFL player statistics" && git push)
+          git add data/nfl-data.json data/nfl-schedule-2026.json
+          git diff --cached --quiet || (git commit -m "Update NFL player statistics and schedule" && git push)

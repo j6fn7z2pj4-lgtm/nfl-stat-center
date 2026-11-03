@@ -1,0 +1,98 @@
+name: Validate NFL Dashboard
+
+on:
+  push:
+    branches:
+      - dashboard-rebuild
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check dashboard JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script>(.*?)</script>", html, re.S)
+          if not scripts:
+              raise SystemExit("No inline dashboard script found")
+          Path("/tmp/dashboard.js").write_text("\n".join(scripts), encoding="utf-8")
+          PY
+          node --check /tmp/dashboard.js
+
+      - name: Validate JSON data files and dashboard data structure
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          with Path("data/nfl-data.json").open(encoding="utf-8") as f:
+              player_data = json.load(f)
+          if player_data.get("season") != 2026:
+              raise SystemExit("Player data season must be 2026")
+          players = player_data.get("players")
+          weekly = player_data.get("weekly")
+          if not isinstance(players, list) or not players:
+              raise SystemExit("Player data must contain a non-empty players array")
+          if not isinstance(weekly, list) or not weekly:
+              raise SystemExit("Player data must contain a non-empty weekly array")
+          if any(not isinstance(p, dict) or not (p.get("id") or p.get("name")) for p in players):
+              raise SystemExit("Every player record must have an ID or name")
+          if any(not isinstance(r, dict) or not (r.get("player_id") or r.get("player_name") or r.get("player_display_name")) for r in weekly):
+              raise SystemExit("Every weekly record must identify a player")
+          if any(not (r.get("team") or r.get("recent_team")) for r in weekly):
+              raise SystemExit("Every weekly record must include team or recent_team for dashboard filters and team totals")
+          print(f"Valid player data: {len(players)} players, {len(weekly)} weekly records with team identifiers")
+
+          with Path("data/nfl-schedule-2026.json").open(encoding="utf-8") as f:
+              schedule_data = json.load(f)
+          games = schedule_data.get("games")
+          if schedule_data.get("season") != 2026 or not isinstance(games, list) or not games:
+              raise SystemExit("Schedule must contain 2026 game records")
+          teams = set()
+          game_ids = set()
+          completed = 0
+          for game in games:
+              if not isinstance(game, dict) or not game.get("game_id"):
+                  raise SystemExit("Every schedule row must have a game ID")
+              if game["game_id"] in game_ids:
+                  raise SystemExit(f"Duplicate game ID: {game['game_id']}")
+              game_ids.add(game["game_id"])
+              teams.update((game.get("home_team"), game.get("away_team")))
+              home, away = game.get("home_score"), game.get("away_score")
+              if (home is None or home == "") != (away is None or away == ""):
+                  raise SystemExit(f"Only one score is present for {game['game_id']}")
+              if home is not None and home != "":
+                  if not isinstance(home, (int, float)) or not isinstance(away, (int, float)):
+                      raise SystemExit(f"Scores must be numeric for {game['game_id']}")
+                  completed += 1
+          teams.discard(None)
+          if len(teams) != 32:
+              raise SystemExit(f"Expected all 32 NFL teams, found {len(teams)}")
+          print(f"Valid schedule: {len(games)} games, {completed} completed, {len(teams)} teams")
+          PY
+
+      - name: Check NFL data refresh Python syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re, textwrap
+          workflow = Path(".github/workflows/update-nfl-data.yml").read_text(encoding="utf-8")
+          match = re.search(r"python - <<'PY'\n(.*?)\n\s+PY", workflow, re.S)
+          if not match:
+              raise SystemExit("Could not locate embedded Python refresh script")
+          compile(textwrap.dedent(match.group(1)), "update-nfl-data.py", "exec")
+          print("NFL refresh Python syntax is valid")
+          PY
