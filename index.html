@@ -146,7 +146,10 @@ label, .field, .empty {
 <script>
 let players=[];
 let weekly=[];
-let schedule=[]; 
+let schedule=[];
+const DATA_ROOT=location.hostname==="htmlpreview.github.io"
+ ? "https://raw.githubusercontent.com/j6fn7z2pj4-lgtm/nfl-stat-center/dashboard-rebuild"
+ : ".";
 const teams=[
 {name:'Arizona Cardinals',abbr:'ARI',division:'NFC West'},{name:'Atlanta Falcons',abbr:'ATL',division:'NFC South'},{name:'Baltimore Ravens',abbr:'BAL',division:'AFC North'},{name:'Buffalo Bills',abbr:'BUF',division:'AFC East'},{name:'Carolina Panthers',abbr:'CAR',division:'NFC South'},{name:'Chicago Bears',abbr:'CHI',division:'NFC North'},{name:'Cincinnati Bengals',abbr:'CIN',division:'AFC North'},{name:'Cleveland Browns',abbr:'CLE',division:'AFC North'},
 {name:'Dallas Cowboys',abbr:'DAL',division:'NFC East'},{name:'Denver Broncos',abbr:'DEN',division:'AFC West'},{name:'Detroit Lions',abbr:'DET',division:'NFC North'},{name:'Green Bay Packers',abbr:'GB',division:'NFC North'},{name:'Houston Texans',abbr:'HOU',division:'AFC South'},{name:'Indianapolis Colts',abbr:'IND',division:'AFC South'},{name:'Jacksonville Jaguars',abbr:'JAX',division:'AFC South'},{name:'Kansas City Chiefs',abbr:'KC',division:'AFC West'},
@@ -265,7 +268,7 @@ function projection(){let p=players.find(x=>x.id==$('projectPlayer').value);if(!
 function americanToDecimal(o){return o>0?1+o/100:1+100/Math.abs(o)}function calcOdds(){let o=Number($('odds').value),stake=Math.max(0,Number($('stake').value)||0),legs=Math.max(1,Math.min(20,Math.floor(Number($('legs').value)||1)));if(!o){$('oddsResult').innerHTML='<span class="muted">Enter valid non-zero American odds.</span>';return}let dec=americanToDecimal(o),combined=Math.pow(dec,legs),prob=1/dec;let profit=stake*(combined-1),total=stake*combined;$('oddsResult').innerHTML=`<span class="muted">Potential total return</span><strong>$${total.toFixed(2)}</strong><span class="muted">Profit: $${profit.toFixed(2)} · Combined decimal odds: ${combined.toFixed(2)}</span>`;$('probability').innerHTML=`<span class="muted">Break-even per leg</span><strong>${(prob*100).toFixed(2)}%</strong><span class="muted">Naive parlay break-even: ${(Math.pow(prob,legs)*100).toFixed(2)}%</span>`}
 document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===btn));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('hidden',x.id!==btn.dataset.tab));if(btn.dataset.tab==='compare')renderCompare();if(btn.dataset.tab==='teams')renderTeams()}));
 ['search','position','sort'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',renderPlayers));$('teamSearch').addEventListener('input',renderTeams);$('weekSelect').addEventListener('change',renderWeekly);$('weeklyUnit').addEventListener('change',renderWeekly);$('weeklySearch').addEventListener('input',renderWeekly);$('teamSort').addEventListener('change',renderTeams);['compareA','compareB'].forEach(id=>$(id).addEventListener('change',renderCompare));$('opponentPlayer').addEventListener('change',renderOpponentSplits);$('opponentFilter').addEventListener('change',renderOpponentSplits); $('runProjection').addEventListener('click',projection);$('calcOdds').addEventListener('click',calcOdds);renderLeaders();renderPlayers();renderTeams();fillSelects();renderCompare();renderOpponentSplits();calcOdds();
- fetch('./data/nfl-data.json').then(response=>{if(!response.ok)throw new Error('NFL player data unavailable');return response.json();}).then(data=>{
+ fetch(DATA_ROOT+'/data/nfl-data.json').then(response=>{if(!response.ok)throw new Error('NFL player data unavailable');return response.json();}).then(data=>{
  players=data.players||[];weekly=data.weekly||[];
  const aggregates={};
  weekly.forEach(r=>{const id=r.player_id;if(!id)return;const a=aggregates[id]||(aggregates[id]={passInt:0,defInt:0,sacks:0,tackles:0,fg:0,punts:0});a.passInt+=num(r,'passing_interceptions');a.defInt+=num(r,'def_interceptions');a.sacks+=num(r,'def_sacks');a.tackles+=num(r,'def_tackles_solo','solo_tackles')+num(r,'def_tackles_assists','def_tackle_assists','assisted_tackles');a.fg+=num(r,'fg_made');a.punts+=num(r,'pt_att');});
@@ -273,5 +276,5 @@ document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>
  const latestWeek=Math.max(1,...weekly.map(r=>Number(r.week)||0));$('weekSelect').value='Week '+latestWeek;
  renderWeekly();renderLeaders();renderPlayers();fillSelects();renderCompare();renderOpponentSplits();renderTeams();
  }).catch(error=>console.log('NFL player data:',error.message));
- fetch('./data/nfl-schedule-2026.json').then(response=>{if(!response.ok)throw new Error('NFL schedule unavailable');return response.json();}).then(data=>{schedule=data.games||[];renderTeams();}).catch(error=>console.log('NFL schedule:',error.message));
+ fetch(DATA_ROOT+'/data/nfl-schedule-2026.json').then(response=>{if(!response.ok)throw new Error('NFL schedule unavailable');return response.json();}).then(data=>{schedule=data.games||[];renderTeams();}).catch(error=>console.log('NFL schedule:',error.message));
 </script></body></html>
