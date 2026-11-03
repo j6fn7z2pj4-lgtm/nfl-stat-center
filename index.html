@@ -191,7 +191,7 @@ s.rush+=rush;
 s.sacks+=num(r,'def_sacks');
 s.takeaways+=num(r,'def_interceptions')+num(r,'fumble_recovery_opp');
 if(opponent&&out[opponent]){
-const gameKey=r.game_id||[r.season||2026,r.week,code,opponent].join('-');
+const gameKey=[r.game_id||[r.season||2026,r.week,opponent].join('-'),code].join('-');
 const game=offenseByGame[gameKey]||(offenseByGame[gameKey]={team:code,opponent,yards:0});
 game.yards+=pass+rush;
 }
