@@ -35,8 +35,11 @@ jobs:
 
               def num(row, *keys):
                   for key in keys:
+                      value = row.get(key)
+                      if value is None or value == "":
+                          continue
                       try:
-                          return float(row.get(key) or 0)
+                          return float(value)
                       except (ValueError, TypeError):
                           continue
                   return 0
